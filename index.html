@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<title>Конвертер данных</title>
+	<style>
+
+body,
+body * {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	-webkit-tap-highlight-color: transparent;
+}
+
+body {
+	font-family: 'Calibri', sans-serif;
+	font-size: 17px;
+	background-color: #fff;
+}
+
+body *::selection {
+	background-color: rgba(150, 132, 208, .4);
+}
+
+/* --- SELECT ---*/
+.select {
+	display: block;
+	position: relative;
+	max-width: 100%;
+}
+
+.default,	
+.list {
+	display: block;
+	background-color: #fff;
+	box-shadow: 0 0 10px #f2eeff;
+	border: 1px solid #EAE3FD;
+	border-radius: 3px;
+	padding: 5px 0;	
+	width: 100%;
+}
+
+.option {
+	display: block;
+	width: 100%;
+	cursor: pointer;
+	padding: 8px 12px;
+	color: #05081B;
+	transition: 300ms ease;
+	user-select: none;
+}
+
+.list {
+	display: none;
+	position: absolute;
+	left: 0;
+	top: -5px;
+	z-index: 1000;
+}
+
+@keyframes SelectOn {
+	
+	from {
+		opacity: 0;
+		top: -20px;
+	}
+
+	to {
+		opacity: 1;
+		top: -5px;
+	}
+
+}
+
+@keyframes selectOff {
+	
+	from {		
+		opacity: 1;
+		top: -5px;
+	}
+
+	to {
+		opacity: 0;
+		top: -20px;
+	}
+
+}
+
+.select.active .list {
+	display: block;
+	animation: SelectOn 200ms ease-in-out;
+}
+
+.select.close .list {
+	display: block;
+	animation: selectOff 200ms ease-in-out;
+}
+
+.option:hover {
+	color: #06031E;
+	background-color: #f2eeff;
+}
+
+/* --- INPUT + TEXTAREA --- */
+.inp-text,
+.inp {
+	display: block;
+	max-width: 100%;
+	height: 37px;
+}
+
+.inp-text textarea,
+.inp input {
+	display: block;
+	width: 100%;
+	height: 100%;
+	box-shadow: 0 0 10px #f2eeff;
+	border: 1px solid #EAE3FD;
+	background-color: #fff;
+	border-radius: 3px;
+	outline: none;
+	padding: 8px 12px;
+	transition: 200ms box-shadow ease-in;
+	font-size: 16px;
+	color: #05081B;
+}
+
+.inp-text textarea:focus,
+.inp input:focus {
+	box-shadow: 0 4px 12px #EBE5FF;
+}
+
+.inp-text textarea::placeholder,
+.inp input::placeholder {
+	color: #73799F;
+	/*font-size: 16px;*/
+}
+
+.inp-text {
+	height: auto;
+}
+
+.inp-text textarea {
+	resize: vertical;
+	min-height: 142px;
+}
+
+/* --- CHECKBOX + RADIO --- */
+.chbox,
+.rdbox {
+	display: block;
+	width: 20px;
+	min-width: 20px;
+	height: 20px;
+	min-height: 20px;
+	position: relative;
+	cursor: pointer;
+}
+
+.chbox:before,
+.rdbox:before {
+	content: '';
+	display: block;
+	width: 44px;
+	min-width: 44px;
+	height: 44px;
+	min-height: 44px;
+	border-radius: 100%;
+	background-color: #f2eeff;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1;
+	visibility: hidden;
+}
+
+.chbox:active:before,
+.rdbox:active:before {
+	visibility: visible;
+}
+
+.chbox .chbox-inner,
+.rdbox .rdbox-inner {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 2px solid #73799F;
+	border-radius: 3px;
+	z-index: 2;
+	position: relative;
+}
+
+.chbox input,
+.rdbox input {
+	display: none;
+}
+
+.chbox .chbox-item,
+.rdbox .rdbox-item {
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%) scale(3);
+	opacity: 0;
+	transition: 200ms ease-out;
+}
+
+.rdbox .rdbox-item,
+.rdbox .rdbox-inner {
+	border-radius: 100%;
+}
+
+.chbox .chbox-item {
+	width: 85%;
+	height: 45%;
+	border-bottom: 2px solid #73799F;
+	border-left: 2px solid #73799F;
+	transform: translate(-50%, -60%) rotate(-45deg) scale(1.5);
+}
+
+.rdbox .rdbox-item {
+	width: 70%;
+	height: 70%;
+	background-color: #73799F;
+}
+
+.chbox input:checked ~ .chbox-inner .chbox-item,
+.rdbox input:checked ~ .rdbox-inner .rdbox-item {
+	opacity: 1;	
+}
+
+.chbox input:checked ~ .chbox-inner .chbox-item {
+	transform: translate(-50%, -60%) rotate(-45deg) scale(1);
+}
+
+.rdbox input:checked ~ .rdbox-inner .rdbox-item {
+	transform: translate(-50%, -50%) scale(1);
+}
+
+/* --- CHECKBOX TEXT + RADIO TEXT --- */
+.chbox-text,
+.rdbox-text {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid transparent;
+	transition: 200ms ease;
+	border-radius: 3px;
+	cursor: pointer;
+	padding: 8px;
+}
+
+.chbox-text .chbox:before,
+.rdbox-text .rdbox:before {
+	display: none;
+}
+
+.rdbox-text {
+	border-radius: 30px;
+}
+
+.chbox-text:hover,
+.rdbox-text:hover {
+	box-shadow: 0 0 10px #f2eeff;
+	border-color: #EAE3FD;
+}
+
+.chbox-text .text-con,
+.rdbox-text .text-con {
+	margin-right: 4px;
+	margin-left: 8px;
+	user-select: none;
+}
+
+/* --- BUTTON --- */
+.btn {
+	display: inline-block;
+	max-width: 100%;
+	border-radius: 3px;
+	padding: 0 12px;
+	overflow: hidden;
+	cursor: pointer;
+	border: 1px solid #EAE3FD;
+	box-shadow: 0 2px 6px #f2eeff;
+	transition: 200ms box-shadow ease-in;
+	background-color: #fff;
+}
+
+.btn:hover {
+	box-shadow: 0 8px 14px #f2eeff;
+}
+
+.btn:active {
+	transform: scale(.95);
+}
+
+.btn-inner {
+	display: block;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+
+.btn-text {
+	user-select: none;
+	line-height: 35px;
+	color: #0B1135;
+}
+
+.btn.yes {
+	border-color: #69FBC9;
+	box-shadow: 0 2px 6px #93FFDA;
+}
+
+.btn.yes:hover {
+	box-shadow: 0 8px 14px #93FFDA;
+}
+
+.btn.yes.btn-text {
+	color: #053221;
+}
+
+.btn.no {
+	border-color: #FFAEBA;
+	box-shadow: 0 2px 6px #FFD3DA;
+}
+
+.btn.no:hover {
+	box-shadow: 0 8px 14px #FFD3DA;
+}
+
+.btn.no.btn-text {
+	color: #2A040A;
+}
+
+/* --- LINE --- */
+.line {
+	display: block;
+	background-color: #EAE3FD;
+	box-shadow: 0 0 6px #f2eeff;
+}
+
+.line.hor {
+	width: 100%;
+	height: 1px;
+}
+
+.line.ver {
+	width: 1px;
+	height: 100%;
+}
+
+/* --- TEXT --- */
+.title * {
+	font-weight: bold;
+	color: #150D2E;
+}
+
+.title h1 {
+	font-size: 28px;
+}
+
+.title h2 {
+	font-size: 24px;
+}
+
+.title h3 {
+	font-size: 20px;
+}
+
+.text.dang {
+	color: #180652;
+}
+
+.main-text {
+	color: #150D2E;
+	font-weight: bold;
+}
+
+.main-text,
+.sub-text {
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	word-break: break-all;
+	font-size: 18px;
+	line-height: 27px;
+}
+
+/* --- LIST --- */
+.list-item {
+	transition: 200ms ease-in-out;
+	border-radius: 3px;
+}
+
+.list-item:hover {
+	background-color: #f2eeff;
+}
+
+.list-item .sub-text {
+	color: #180652;
+	box-shadow: none;
+}
+
+.list-item .sub-text:focus {
+	box-shadow: none;
+}
+
+/* --- MARGIN --- */
+.m1 {
+	margin: 5px;
+}
+
+.m2 {
+	margin: 10px;
+}
+
+.m3 {
+	margin: 15px;
+}
+
+.m4 {
+	margin: 20px;
+}
+
+.m5 {
+	margin: 25px;
+}
+
+.m6 {
+	margin: 30px;
+}
+
+.m7 {
+	margin: 35px;
+}
+
+.m8 {
+	margin: 40px;
+}
+
+.m9 {
+	margin: 45px;
+}
+
+.m10 {
+	margin: 50px;
+}
+
+.ml1 {
+	margin-left: 5px;
+}
+
+.ml2 {
+	margin-left: 10px;
+}
+
+.ml3 {
+	margin-left: 15px;
+}
+
+.ml4 {
+	margin-left: 20px;
+}
+
+.ml5 {
+	margin-left: 25px;
+}
+
+.ml6 {
+	margin-left: 30px;
+}
+
+.ml7 {
+	margin-left: 35px;
+}
+
+.ml8 {
+	margin-left: 40px;
+}
+
+.ml9 {
+	margin-left: 45px;
+}
+
+.ml10 {
+	margin-left: 50px;
+}
+
+.mr1 {
+	margin-right: 5px;
+}
+
+.mr2 {
+	margin-right: 10px;
+}
+
+.mr3 {
+	margin-right: 15px;
+}
+
+.mr4 {
+	margin-right: 20px;
+}
+
+.mr5 {
+	margin-right: 25px;
+}
+
+.mr6 {
+	margin-right: 30px;
+}
+
+.mr7 {
+	margin-right: 35px;
+}
+
+.mr8 {
+	margin-right: 40px;
+}
+
+.mr9 {
+	margin-right: 45px;
+}
+
+.mr10 {
+	margin-right: 50px;
+}
+
+.mt1 {
+	margin-top: 5px;
+}
+
+.mt2 {
+	margin-top: 10px;
+}
+
+.mt3 {
+	margin-top: 15px;
+}
+
+.mt4 {
+	margin-top: 20px;
+}
+
+.mt5 {
+	margin-top: 25px;
+}
+
+.mt6 {
+	margin-top: 30px;
+}
+
+.mt7 {
+	margin-top: 35px;
+}
+
+.mt8 {
+	margin-top: 40px;
+}
+
+.mt9 {
+	margin-top: 45px;
+}
+
+.mt10 {
+	margin-top: 50px;
+}
+
+.mb1 {
+	margin-bottom: 5px;
+}
+
+.mb2 {
+	margin-bottom: 10px;
+}
+
+.mb3 {
+	margin-bottom: 15px;
+}
+
+.mb4 {
+	margin-bottom: 20px;
+}
+
+.mb5 {
+	margin-bottom: 25px;
+}
+
+.mb6 {
+	margin-bottom: 30px;
+}
+
+.mb7 {
+	margin-bottom: 35px;
+}
+
+.mb8 {
+	margin-bottom: 40px;
+}
+
+.mb9 {
+	margin-bottom: 45px;
+}
+
+.mb10 {
+	margin-bottom: 50px;
+}
+
+.m0 {
+	margin: 0;
+}
+
+.mt0 {
+	margin-top: 0;
+}
+
+.mb0 {
+	margin-bottom: 0;
+}
+
+.ml0 {
+	margin-left: 0;
+}
+
+.mr0 {
+	margin-right: 0;
+}
+
+/* --- PADDING --- */
+.p1 {
+	padding: 5px;
+}
+
+.p2 {
+	padding: 10px;
+}
+
+.p3 {
+	padding: 15px;
+}
+
+.p4 {
+	padding: 20px;
+}
+
+.p5 {
+	padding: 25px;
+}
+
+.p6 {
+	padding: 30px;
+}
+
+.p7 {
+	padding: 35px;
+}
+
+.p8 {
+	padding: 40px;
+}
+
+.p9 {
+	padding: 45px;
+}
+
+.p10 {
+	padding: 50px;
+}
+
+.pl1 {
+	padding-left: 5px;
+}
+
+.pl2 {
+	padding-left: 10px;
+}
+
+.pl3 {
+	padding-left: 15px;
+}
+
+.pl4 {
+	padding-left: 20px;
+}
+
+.pl5 {
+	padding-left: 25px;
+}
+
+.pl6 {
+	padding-left: 30px;
+}
+
+.pl7 {
+	padding-left: 35px;
+}
+
+.pl8 {
+	padding-left: 40px;
+}
+
+.pl9 {
+	padding-left: 45px;
+}
+
+.pl10 {
+	padding-left: 50px;
+}
+
+.pr1 {
+	padding-right: 5px;
+}
+
+.pr2 {
+	padding-right: 10px;
+}
+
+.pr3 {
+	padding-right: 15px;
+}
+
+.pr4 {
+	padding-right: 20px;
+}
+
+.pr5 {
+	padding-right: 25px;
+}
+
+.pr6 {
+	padding-right: 30px;
+}
+
+.pr7 {
+	padding-right: 35px;
+}
+
+.pr8 {
+	padding-right: 40px;
+}
+
+.pr9 {
+	padding-right: 45px;
+}
+
+.pr10 {
+	padding-right: 50px;
+}
+
+.pt1 {
+	padding-top: 5px;
+}
+
+.pt2 {
+	padding-top: 10px;
+}
+
+.pt3 {
+	padding-top: 15px;
+}
+
+.pt4 {
+	padding-top: 20px;
+}
+
+.pt5 {
+	padding-top: 25px;
+}
+
+.pt6 {
+	padding-top: 30px;
+}
+
+.pt7 {
+	padding-top: 35px;
+}
+
+.pt8 {
+	padding-top: 40px;
+}
+
+.pt9 {
+	padding-top: 45px;
+}
+
+.pt10 {
+	padding-top: 50px;
+}
+
+.pb1 {
+	padding-bottom: 5px;
+}
+
+.pb2 {
+	padding-bottom: 10px;
+}
+
+.pb3 {
+	padding-bottom: 15px;
+}
+
+.pb4 {
+	padding-bottom: 20px;
+}
+
+.pb5 {
+	padding-bottom: 25px;
+}
+
+.pb6 {
+	padding-bottom: 30px;
+}
+
+.pb7 {
+	padding-bottom: 35px;
+}
+
+.pb8 {
+	padding-bottom: 40px;
+}
+
+.pb9 {
+	padding-bottom: 45px;
+}
+
+.pb10 {
+	padding-bottom: 50px;
+}
+
+.p0 {
+	padding: 0;
+}
+
+.pt0 {
+	padding-top: 0;
+}
+
+.pb0 {
+	padding-bottom: 0;
+}
+
+.pl0 {
+	padding-left: 0;
+}
+
+.pr0 {
+	padding-right: 0;
+}
+
+/* --- FLEX --- */
+.fl {
+	display: flex;
+}
+
+.jcc {
+	justify-content: center;
+}
+
+.jca {
+	justify-content: space-around;
+}
+
+.jcb {
+	justify-content: space-between;
+}
+
+.jce {
+	justify-content: flex-end;
+}
+
+.jcs {
+	justify-content: flex-start;
+}
+
+.aic {
+	align-items: center;
+}
+
+.ais {
+	align-items: flex-start;
+}
+
+.aie {
+	align-items: flex-end;
+}
+
+.fb1 {
+	flex-basis: 10%;
+}
+
+.fb2 {
+	flex-basis: 20%;
+}
+
+.fb3 {
+	flex-basis: 30%;
+}
+
+.fb4 {
+	flex-basis: 40%;
+}
+
+.fb5 {
+	flex-basis: 50%;
+}
+
+.fb6 {
+	flex-basis: 60%;
+}
+
+.fb7 {
+	flex-basis: 70%;
+}
+
+.fb8 {
+	flex-basis: 80%;
+}
+
+.fb9 {
+	flex-basis: 90%;
+}
+
+.fb10 {
+	flex-basis: 100%;
+}
+
+.fw {
+	flex-wrap: wrap;
+}
+
+.fdc {
+	flex-direction: column;
+}
+
+/* --- WIDTH --- */
+.mxw1 {
+	max-width: 140px;
+}
+
+.mxw2 {
+	max-width: 280px;
+}
+
+.mxa {
+	max-width: 100%;
+}
+
+.mnw1 {
+	min-width: 140px;
+}
+
+.mnw2 {
+	min-width: 280px;
+}
+
+.w1 {
+	width: 140px;
+}
+
+.w2 {
+	width: 280px;
+}
+
+.w3 {
+	width: 420px;
+}
+
+.w4 {
+	width: 560px;
+}
+
+.wa {
+	width: auto!important;
+}
+
+/* --- HEIGHT --- */
+.ha {
+	height: auto!important;
+}
+
+/* --- TOGGLE CONTENT --- */
+.toggle-content {
+	display: none;
+	position: relative;
+	top: 30px;
+	opacity: 0;
+	transition: 200ms ease-in-out;
+}
+
+.toggle-content.vis {
+	display: block;
+}
+
+.toggle-content.on {
+	opacity: 1;
+	top: 0;
+}
+
+/* --- WRONG --- */
+.wrong {
+	display: none;
+	color: #510707;
+	font-size: 16px;
+}
+
+.wrong.on {
+	display: block;
+}
+
+/* --- TEST --- */
+.b1 {
+	border: 1px solid #B81E1E;
+}
+
+.b2 {
+	border: 1px solid #3B30CD;
+}
+
+.b3 {
+	border: 1px solid #3D3D3D;
+}
+
+.b4 {
+	border: 1px solid #FF00C0;
+}
+
+.dn {
+	display: none;
+}
+
+
+	</style>
+</head>
+<body>
+
+	<div class="dn">
+		
+		<div class="m2">
+			<div class="inp">
+				<input type="text" placeholder="Строчное поле">
+			</div>
+		</div>
+		
+		<div class="line ver"></div>
+		<div class="line hor"></div>
+		
+		<div class="m2">
+			<div class="select">
+				<div class="default option">Элемент списка 1</div>
+				<div class="list">
+					<div class="option">Элемент списка 1</div>
+					<div class="option">Длинное содержание элемента списка 2</div>
+					<div class="option">Обычный элемент списка 3</div>
+					<div class="option">Элемент списка 4</div>
+				</div>	
+			</div>
+		</div>
+		
+		<div class="m2">
+			<div class="inp-text">
+				<textarea placeholder="Текстовое поле"></textarea>
+			</div>
+		</div>
+		
+		<div class="m4">
+			<label class="chbox">
+				<input type="checkbox">
+				<div class="chbox-inner">
+					<div class="chbox-item"></div>
+				</div>
+			</label>
+		</div>
+		
+		<div class="m4">
+			<label class="rdbox">
+				<input type="radio">
+				<div class="rdbox-inner">
+					<div class="rdbox-item"></div>
+				</div>
+			</label>
+		</div>
+		
+		<div class="m4">
+			<label class="chbox-text">
+				<div class="chbox">
+					<input type="checkbox">
+					<div class="chbox-inner">
+						<div class="chbox-item"></div>
+					</div>
+				</div>
+				<div class="text-con">
+					<span class="text">Checkbox</span>
+				</div>
+			</label>
+		</div>
+		
+		<div class="m4">
+			<label class="rdbox-text">
+				<div class="rdbox">
+					<input type="radio">
+					<div class="rdbox-inner">
+						<div class="rdbox-item"></div>
+					</div>
+				</div>
+				<div class="text-con">
+					<span class="text">Radiobox</span>
+				</div>
+			</label>
+		</div>
+		
+		<div class="m1 p1 fl jcs fw">
+		
+			<div class="btn yes m1">
+				<div class="btn-inner">
+					<span class="btn-text">Подтвердить</span>
+				</div>
+			</div>
+		
+			<div class="btn m1">
+				<div class="btn-inner">
+					<span class="btn-text">Продолжить</span>
+				</div>
+			</div>
+		
+			<div class="btn no m1">
+				<div class="btn-inner">
+					<span class="btn-text">Отменить</span>
+				</div>
+			</div>
+			
+		</div>
+
+	</div>
+
+	<div class="fl fw jcc m1">
+		
+		<div class="m1 mxa">
+
+			<div class="fl fw jcc mxa">
+
+				<div class="m1 mr0 mxa">
+					
+					<div class="title pl2">
+						<h2>Шифрование</h2>
+					</div>
+
+					<div class="p1 mt2 w3 mxa">
+					
+						<div class="inp-text">
+							<textarea placeholder="Шифруемый текст" id="enc_txt" required></textarea>
+							<p class="p1 pt2 wrong">Введите текст, который хотите зашифровать</p>
+						</div>						
+					
+					</div>
+
+				</div>
+				
+				<div class="m1 mt2 content w2">
+
+					<div class="title pl2">
+						<h3>Параметры</h3>
+					</div>
+				
+					<div class="fl fw fcc mt2">
+						
+						<div class="ml1 mr1 mb1">
+
+							<label class="rdbox-text">
+
+								<div class="rdbox">
+
+									<input type="radio" name="encoder" class="params" value="def" checked id="enc_params">
+
+									<div class="rdbox-inner">
+										<div class="rdbox-item"></div>
+									</div>
+
+								</div>
+
+								<div class="text-con">
+									<span class="text">По умолчанию</span>
+								</div>
+
+							</label>
+
+						</div>
+				
+						<div class="ml1 mr1 mb1">
+
+							<label class="rdbox-text">
+
+								<div class="rdbox">
+
+									<input type="radio" name="encoder" class="params" value="user">
+
+									<div class="rdbox-inner">
+										<div class="rdbox-item"></div>
+									</div>
+
+								</div>
+
+								<div class="text-con">
+									<span class="text">Свои</span>
+								</div>
+
+							</label>
+
+						</div>
+				
+					</div>
+
+					<div class="toggle-content">
+
+						<div class="p1 mxw2">
+							<p class="text dang">Рекомендуется не <u>изменять</u> значение поля "Метка для кол-ва", иначе вы должны запомнить <u>его</u>.</p>
+						</div>
+
+						<div class="m1 mxw2 mt2">
+
+							<p class="text m1">Кол-во заменяемых символов</p>
+
+							<div class="inp">
+								<input type="text" placeholder="4" id="enc_len">
+							</div>
+
+						</div>
+
+						<div class="m1 mxw2 mt2">
+
+							<p class="text m1">Метка для кол-ва</p>
+
+							<div class="inp">
+								<input type="text" placeholder="***" id="enc_mrk">
+							</div>
+
+						</div>
+
+						<div class="m1 mxw2 mt2">
+
+							<p class="text m1">Символы для ключей</p>
+
+							<div class="inp">
+								<input type="text" placeholder="9zaq0xsw1cde2vfr3bgt4nhy5mju6ki7lo8p" id="enc_sym">
+							</div>
+
+						</div>						
+
+					</div>
+
+					<div class="m1 mt3 fl aic">
+						<label class="chbox">
+							<input type="checkbox" id="enc_rst">
+							<div class="chbox-inner">
+								<div class="chbox-item"></div>
+							</div>
+						</label>
+						<p class="ml3">Зашифровать, даже если ранее зашифрованная информация не удалена (если она есть то будет удалена автоматически)</p>
+					</div>
+
+					<div class="fl jce fw mt3">
+
+						<div class="btn no m1 crypt_no" data-type="enc">
+							<div class="btn-inner">
+								<span class="btn-text">Сбросить</span>
+							</div>
+						</div>
+
+						<div class="btn yes m1 crypt_go" data-type="enc">
+							<div class="btn-inner">
+								<span class="btn-text">Зашифровать</span>
+							</div>
+						</div>							
+
+					</div>
+				
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="m1 mxa">
+
+			<div class="fl fw jcc mxa">
+
+				<div class="m1 mr0 mxa">
+
+					<div class="title pl2">
+						<h2>Дешифрование</h2>
+					</div>
+
+					<div class="p1 mt2 w3 mxa">
+					
+						<div class="inp-text">
+							<textarea placeholder="Ключ шифрования" id="dec_key" required></textarea>
+							<p class="p1 pt2 wrong">Введите ключ, который получили при шифровании текста</p>
+						</div>						
+
+						<div class="inp-text mt3">
+							<textarea placeholder="Значение шифрования" id="dec_val" required></textarea>
+							<p class="p1 pt2 wrong">Введите значение, который получили при шифровании текста</p>
+						</div>
+
+					</div>
+
+				</div>
+				
+				<div class="m1 mt2 content w2">
+
+					<div class="title pl2">
+						<h3>Параметры</h3>
+					</div>
+				
+					<div class="fl fw fcc mt2">
+						
+						<div class="ml1 mr1 mb1">
+
+							<label class="rdbox-text">
+
+								<div class="rdbox">
+
+									<input type="radio" name="decoder" class="params" value="def" checked id="dec_params">
+
+									<div class="rdbox-inner">
+										<div class="rdbox-item"></div>
+									</div>
+
+								</div>
+
+								<div class="text-con">
+									<span class="text">По умолчанию</span>
+								</div>
+
+							</label>
+
+						</div>
+				
+						<div class="ml1 mr1 mb1">
+
+							<label class="rdbox-text">
+
+								<div class="rdbox">
+
+									<input type="radio" name="decoder" class="params" value="user">
+
+									<div class="rdbox-inner">
+										<div class="rdbox-item"></div>
+									</div>
+
+								</div>
+
+								<div class="text-con">
+									<span class="text">Свои</span>
+								</div>
+
+							</label>
+
+						</div>
+				
+					</div>
+
+					<div class="toggle-content">
+
+						<div class="p1 mxw2">
+							<p class="text dang">Измените <u>значение</u> поля "Метка для кол-ва", если вы задавали <u>его</u> при шифровании.</p>
+						</div>
+
+						<div class="m1 mxw2 mt2">
+
+							<p class="text m1">Метка для кол-ва</p>
+
+							<div class="inp">
+								<input type="text" placeholder="***" id="dec_mrk">
+							</div>
+
+						</div>						
+
+					</div>
+
+					<div class="m1 mt3 fl aic">
+						<label class="chbox">
+							<input type="checkbox" id="dec_rst">
+							<div class="chbox-inner">
+								<div class="chbox-item"></div>
+							</div>
+						</label>
+						<p class="ml3">Дешифровать, даже если ранее дешифрованная информация не удалена (если она есть то будет удалена автоматически)</p>
+					</div>
+
+					<div class="fl jce fw mt3">
+
+						<div class="btn no m1 crypt_no" data-type="dec">
+							<div class="btn-inner">
+								<span class="btn-text">Сбросить</span>
+							</div>
+						</div>
+
+						<div class="btn yes m1 crypt_go" data-type="dec">
+							<div class="btn-inner">
+								<span class="btn-text">Дешифровать</span>
+							</div>
+						</div>							
+
+					</div>
+				
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="holder_enc toggle-content m1 mb4">
+
+		<div class="fl fdc aic content">
+		
+			<div class="title mb2 pl2 pr2">
+				<h2>Информация зашифрована</h2>
+			</div>
+		
+			<div class="p1 pr3 mxa list-item">
+				<p class="main-text mxw2">Ключ шифрования</p>
+				<div class="inp-text ml2 mt1 w4 mxa pb1">
+					<textarea readonly class="sub-text key_enc"></textarea>
+				</div>
+			</div>
+		
+			<div class="p1 pr3 mt1 mxa list-item">
+				<p class="main-text mxw2">Значение шифрования</p>
+				<div class="inp-text ml2 mt1 w4 mxa pb1">
+					<textarea readonly class="sub-text val_enc"></textarea>
+				</div>
+			</div>
+		
+			<div class="fl fw jcc m2">
+
+				<div class="btn m1 del_holder" data-holder="enc">
+					<div class="btn-inner">
+						<span class="btn-text">Удалить</span>
+					</div>
+				</div>
+						
+				<div class="btn m1 toggle-btn" data-siv>
+					<div class="btn-inner">
+						<span class="btn-text">Подробнее</span>
+					</div>
+				</div>
+
+			</div>
+		
+			<div class="toggle-content mxa">
+		
+				<div class="p1 pr3 mxa list-item">
+					<p class="main-text mxw2">Кол-во заменяемых символов</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text len_enc">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Метка для кол-ва</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text mrk_enc">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Символы для ключей</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text sym_enc">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Уникальные символы</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text uni_enc">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Шифруемый текст</p>
+					<div class="inp-text ml2 mt1 w4 mxa pb1">
+						<textarea readonly class="sub-text txt_enc"></textarea>
+					</div>
+				</div>
+		
+			</div>
+		
+		</div>
+
+	</div>
+
+	<div class="holder_dec toggle-content m1 mb4">
+
+		<div class="fl fdc aic content">
+		
+			<div class="title mb2 pl2 pr2">
+				<h2>Информация дешифрована</h2>
+			</div>
+		
+			<div class="p1 pr3 mxa list-item">
+				<p class="main-text mxw2">Расшифрованный текст</p>
+				<div class="inp-text ml2 mt1 w4 mxa pb1">
+					<textarea readonly class="sub-text txt_dec"></textarea>
+				</div>
+			</div>
+		
+			<div class="fl fw jcc m2">
+
+				<div class="btn m1 del_holder" data-holder="dec">
+					<div class="btn-inner">
+						<span class="btn-text">Удалить</span>
+					</div>
+				</div>
+						
+				<div class="btn m1 toggle-btn" data-siv>
+					<div class="btn-inner">
+						<span class="btn-text">Подробнее</span>
+					</div>
+				</div>
+
+			</div>
+		
+			<div class="toggle-content mxa">
+		
+				<div class="p1 pr3 mxa list-item">
+					<p class="main-text mxw2">Кол-во заменяемых символов</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text len_dec">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Метка для кол-ва</p>
+					<div class="inp ml2 mt1 w4 mxa pb1">
+						<input readonly class="sub-text mrk_dec">
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Ключ шифрования</p>
+					<div class="inp-text ml2 mt1 w4 mxa pb1">
+						<textarea readonly class="sub-text key_dec"></textarea>
+					</div>
+				</div>
+		
+				<div class="p1 pr3 mt1 mxa list-item">
+					<p class="main-text mxw2">Значение шифрования</p>
+					<div class="inp-text ml2 mt1 w4 mxa pb1">
+						<textarea readonly class="sub-text val_dec"></textarea>
+					</div>
+				</div>
+		
+			</div>
+		
+		</div>
+
+	</div>
+
+	<script>
+
+const
+	ENCRYPT_DEFAULTS = Object.freeze({
+			count: 4,
+			countMark: '***',
+			hashSyms: '9zaq0xsw1cde2vfr3bgt4nhy5mju6ki7lo8p'
+		});
+
+// -- ENCODE DATA
+class EncoderData
+{
+	constructor ()
+	{
+		// --- Used unique symbols
+		this.syms = '';
+
+		// --- Count of replaced <Int>
+		this.count = ENCRYPT_DEFAULTS.count;
+		// --- Keys and count delimiter <Str> 'Recommended: same chars'
+		this.countMark = ENCRYPT_DEFAULTS.countMark;
+
+		// --- Use for substitutes
+		this.hashSyms = ENCRYPT_DEFAULTS.hashSyms;
+
+		// --- Last used output data
+		this.current = null;
+
+		// --- Last used input data
+		this.used = '';
+
+		// --- Last used substitutes
+		this.hashes = [];
+	}
+
+	// ---- RANDOM MIN+ MAX+ -UNSAFE
+	rand ( min, max )
+	{
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	// ---- UNIQUE FROM (HASHES) RANDOM SYMS FROM (COUNT) (HASHSYMS)
+	hash ()
+	{
+		let
+			curStr = '';
+
+		while ( curStr.length < this.count )
+		{
+			let
+				curIdx = this.rand(0, (this.hashSyms.length - 1));
+
+			curStr += this.hashSyms[curIdx];
+		}
+
+		if ( this.hashes.indexOf(curStr) > -1 )
+		{
+			curStr = this.hash();
+		}
+		
+		this.hashes.push(curStr);
+
+		return curStr;
+	}
+
+	// ---- UNIQUE SYMS IN STR
+	unique ( str )
+	{
+		let
+			result = '';
+
+		for (var i = 0; i < str.length; i++)
+		{
+			if ( result.indexOf(str[i]) < 0 )
+			{
+				result += str[i];
+			}
+		}
+
+		return result;
+	}
+
+	// ---- RESET (HASHES) + SET (SYMS) + SET INPUT (USED)
+	ready ( repStr )
+	{
+		this.syms = this.unique(repStr);
+
+		this.used = repStr;
+
+		let
+			dataNew = {
+				useKeys: new Map(),
+				keys: '',
+				vals: '',
+				count: this.count,
+				countMark: this.countMark,
+				syms: this.syms,
+				hashSyms: this.hashSyms
+			},
+			symsLen = this.syms.length,
+			repLen  = this.used.length;
+
+		for (let i = 0; i < symsLen; i++)
+		{
+			let
+				curHash = this.hash();
+
+			dataNew.useKeys.set(this.syms[i], curHash);
+
+			dataNew.keys += this.syms[i] + curHash;
+		}
+
+		dataNew.keys += this.countMark + dataNew.count;
+
+		for (let i = 0; i < repLen; i++)
+		{
+			dataNew.vals += dataNew.useKeys.get(this.used[i]);
+		}
+
+		this.hashes = [];
+
+		this.current = dataNew;		
+
+		return dataNew;
+	}
+
+	// ---- CLEAN VALUES | REPLACE ON (ENCRYPT_DEFAULTS)
+	clean ()
+	{
+		this.syms = '';
+		this.count = ENCRYPT_DEFAULTS.count;
+		this.countMark = ENCRYPT_DEFAULTS.countMark;
+		this.hashSyms = ENCRYPT_DEFAULTS.hashSyms;
+		this.current = null;
+		this.used = '';
+		this.hashes = [];
+	}
+}
+
+// -- DECODE DATA
+class DecoderData
+{
+	constructor ()
+	{
+		// --- Count of replaced <Int>
+		this.count = ENCRYPT_DEFAULTS.count;
+		// --- Keys and count delimiter <Str> 'Recommended: same chars'
+		this.countMark = ENCRYPT_DEFAULTS.countMark;
+
+		// --- Keys user input
+		this.inpKeys = '';
+		// --- Keys output <Map>
+		this.keys = null;
+
+		// --- Values user input
+		this.inpVals = '';
+		// --- Values output <Array>
+		this.vals = [];
+
+		// --- Last ready decoded data
+		this.current = '';
+	}
+
+	// ---- SET (KEYS) + (INPUT KEYS) IN MAP
+	setKeys ( keysStr, autoRep = true )
+	{
+		if ( !keysStr )
+		{
+			return false;
+		}
+
+		this.inpKeys = keysStr;
+
+		let
+			keysAll = '';
+
+		if ( autoRep === true )
+		{
+			let
+				curKeysArr = this.inpKeys.split(this.countMark);
+
+			keysAll = curKeysArr[0];
+
+			this.count = parseInt(curKeysArr[1]);
+		}
+		else if ( autoRep === false )
+		{
+			keysAll = this.inpKeys;
+		}
+
+		this.keys = new Map();
+
+		let
+			keysSize = this.count + 1,
+			keysLen  = Math.ceil(keysAll.length / keysSize);
+
+		for (let i = 0; i < keysLen; i++)
+		{
+			let
+				curHash = keysAll.slice((i * keysSize), (i * keysSize) + keysSize);
+
+			this.keys.set(curHash.slice(1), curHash[0]);
+		}
+
+		return this.keys;
+	}
+
+	// ---- SET (VALS) + (INPUT VALS) IN ARRAY
+	setVals ( valsStr, autoRep = true )
+	{
+		if ( !valsStr )
+		{
+			return false;
+		}
+
+		this.inpVals = valsStr;
+
+		this.vals = [];
+
+		let
+			keysLen = Math.ceil(this.inpVals.length / this.count);
+
+		for (let i = 0; i < keysLen; i++)
+		{
+			let
+				curHash = this.inpVals.slice((i * this.count), (i * this.count) + this.count);
+
+			this.vals.push(curHash);
+		}
+
+		return this.vals;
+	}
+
+	// ---- REPLACE (VALS) OF (KEYS)
+	ready ()
+	{
+		let
+			dataNew = '';
+
+		for (let i = 0; i < this.vals.length; i++)
+		{
+			dataNew += this.keys.get(this.vals[i]);
+		}
+
+		this.current = dataNew;
+
+		return dataNew;
+	}
+
+	// ---- CLEAN VALUES | REPLACE ON (ENCRYPT_DEFAULTS)
+	clean ()
+	{
+		this.count = ENCRYPT_DEFAULTS.count;
+		this.countMark = ENCRYPT_DEFAULTS.countMark;
+		this.inpKeys = '';
+		this.keys = null;
+		this.inpVals = '';
+		this.vals = [];
+		this.current = '';
+	}
+}
+
+// -- OUTPUT VALUES
+class EncryptionVisualizer
+{
+	constructor ()
+	{
+		// --- DOM selectors for response
+		this.elemsList = {
+			count: '.len_',
+			countMark: '.mrk_',
+			keys: '.key_',
+			vals: '.val_',
+			used: '.txt_',
+			hashSyms: '.sym_',
+			syms: '.uni_'
+		};
+	}
+
+	// ---- DISPLAY (ELEMSDATA) IN (INELEM) SELECTORS (ELEMSLIST)
+	display ( inElem, elemsData )
+	{
+		for ( let key in elemsData )
+		{
+			if ( key in this.elemsList )
+			{
+				let
+					curElem = document.querySelector(this.elemsList[key] + inElem);
+
+				curElem.value = elemsData[key];
+			}
+		}
+
+		showContent(document.querySelector('.holder_' + inElem));
+	}
+
+	// ---- CLEAN (INELEM) CHILD (ELEMSLIST) VALUE
+	clean ( inElem )
+	{
+		let
+			curContent = document.querySelector('.holder_' + inElem),
+			curToggle  = curContent.querySelector('.toggle-content');
+
+		for ( let key in this.elemsList )
+		{
+			let
+				curElem = document.querySelector(this.elemsList[key] + inElem);
+
+			if ( curElem ) curElem.value = '';			
+		}
+
+		hideContent(curToggle);
+
+		hideContent(curContent);
+	}
+}
+
+// -- INPUT VALUES
+class InputEncrypt
+{
+	constructor ()
+	{
+		// --- DOM inputs id & (inpElemVal) return keys
+		this.inputElems = {
+			count: '_len',
+			countMark: '_mrk',
+			hashSyms: '_sym',
+			used: '_txt',
+			keys: '_key',
+			vals: '_val'
+		};
+	}
+
+	// ---- GET INPUT ELEMENT VALUES (INPUTELEMS)
+	inpElemsVal ( elem )
+	{
+		let
+			curInps = {};
+
+		for ( let key in this.inputElems )
+		{
+			let
+				curInpSel = '#' + elem + this.inputElems[key],
+				curInpVal = document.querySelector(curInpSel);
+
+			if ( curInpVal )
+			{
+				if ( curInpVal.value != '' )
+				{
+					curInps[key] = curInpVal.value;
+
+					if ( key == 'count' )
+						curInps[key] = parseInt(curInps[key]);
+				}
+				else if ( key in ENCRYPT_DEFAULTS )
+				{
+					curInps[key] = ENCRYPT_DEFAULTS[key];
+				}
+			}			
+		}
+
+		return curInps;
+	}
+
+	// ---- CHECK INPUT VALUES ON EMPTY IN (ELEM)
+	checkVals ( elem )
+	{
+		let
+			emptyInps = [];
+
+		for ( let key in this.inputElems )
+		{
+			let
+				curInpSel = '#' + elem + this.inputElems[key],
+				curInpVal = document.querySelector(curInpSel),
+				wrongSel  = curInpSel + ' ~ .wrong',
+				wrongElem = document.querySelector(wrongSel);
+
+			if ( curInpVal )
+				if ( curInpVal.hasAttribute('required') )
+					if ( curInpVal.value == '' )
+						emptyInps.push(curInpSel);
+					else if ( wrongElem && wrongElem.classList.contains('on') )
+						wrongElem.classList.remove('on')
+		}
+
+		if ( emptyInps.length > 0 ) return emptyInps;			
+
+		return true;
+	}
+
+	// ---- CLEAN INPUT ELEMENT VALUES (INPUTELEMS)
+	clean ( elem )
+	{
+		for ( let key in this.inputElems )
+		{
+			let
+				curInpSel = '#' + elem + this.inputElems[key],
+				wrongSel  = curInpSel + ' ~ .wrong',
+				wrongElem = document.querySelector(wrongSel),
+				curInpVal = document.querySelector(curInpSel);
+
+			if ( curInpVal ) curInpVal.value = '';
+
+			if ( wrongElem && wrongElem.classList.contains('on') )
+				wrongElem.classList.remove('on');
+		}
+
+		let
+			rstElem = document.querySelector('#' + elem + '_rst'),
+			params  = document.querySelector('#' + elem + '_params');
+
+		if ( rstElem ) rstElem.checked = false;
+
+		if ( params )
+		{
+			params.checked = true;
+
+			params.dispatchEvent(new Event('change'));
+		}
+	}
+
+}
+
+// -- -- -- WORK WITH ENCRYPT
+let
+	encodeData = new EncoderData(),
+	decodeData = new DecoderData(),
+	vizualizer = new EncryptionVisualizer(),
+	inputEnc   = new InputEncrypt();
+
+// -- -- -- CRYPT
+let
+	cryptGo = document.getElementsByClassName('crypt_go'),
+	cryptNo = document.getElementsByClassName('crypt_no');
+
+for (let i = 0; i < cryptGo.length; i++)
+{
+	cryptGo[i].addEventListener('click', function() {
+
+		let
+			cryptType  = this.getAttribute('data-type'),
+			cryptVals  = inputEnc.inpElemsVal(cryptType),
+			curContent = document.querySelector('.holder_' + cryptType),
+			checkState = inputEnc.checkVals(cryptType),
+			curIgnore  = document.querySelector('#' + cryptType + '_rst').checked;
+
+		if ( checkState !== true )
+		{
+			for (var i = 0; i < checkState.length; i++)
+			{
+				let
+					wrongSel  = checkState[i] + ' ~ .wrong',
+					wrongElem = document.querySelector(wrongSel);
+
+				if ( !wrongElem.classList.contains('on') )
+					wrongElem.classList.add('on');
+			}
+
+			return;
+		}
+
+		if ( cryptType == 'dec' )
+		{
+			if ( !curIgnore && decodeData.current ) return;
+
+			decodeData.countMark = cryptVals.countMark;
+			decodeData.setKeys(cryptVals.keys);
+			decodeData.setVals(cryptVals.vals);
+
+			decodeData.ready();
+
+			vizualizer.display('dec', {
+				count: decodeData.count,
+				countMark: decodeData.countMark,
+				keys: decodeData.inpKeys,
+				vals: decodeData.inpVals,
+				used: decodeData.current
+			});
+		}
+		else if ( cryptType == 'enc' )
+		{
+			if ( !curIgnore && encodeData.current ) return;
+
+			encodeData.count = cryptVals.count;
+			encodeData.countMark = cryptVals.countMark;
+			encodeData.hashSyms = cryptVals.hashSyms;
+
+			encodeData.ready(cryptVals.used);
+
+			vizualizer.display('enc', Object.assign({
+				used: encodeData.used
+			}, encodeData.current));
+		}
+
+		showContent(curContent);
+		curContent.scrollIntoView(false);
+
+	});
+}
+
+for (let i = 0; i < cryptNo.length; i++)
+{
+	cryptNo[i].addEventListener('click', function() {
+
+		inputEnc.clean(this.getAttribute('data-type'));
+
+	});
+}
+
+// -- -- -- TOGGLE CONTENT
+let
+	allParams = document.getElementsByClassName('params'),
+	toggleBtn = document.getElementsByClassName('toggle-btn'),
+	delHolder = document.getElementsByClassName('del_holder');
+
+for (let i = 0; i < allParams.length; i++)
+{
+	allParams[i].addEventListener('change', paramChange);
+}
+
+for (let i = 0; i < toggleBtn.length; i++)
+{
+	toggleBtn[i].addEventListener('click', toggleContent);
+}
+
+for (let i = 0; i < delHolder.length; i++)
+{
+	delHolder[i].addEventListener('click', function() {
+
+		let
+			cleanType = this.getAttribute('data-holder');
+
+		vizualizer.clean(cleanType);
+
+		if ( cleanType == 'dec' ) decodeData.clean();
+		
+		if ( cleanType == 'enc' ) encodeData.clean();
+
+	});
+}
+
+function paramChange()
+{
+	let
+		checkedParam = document.querySelector('input[name="' + this.name + '"]:checked'),
+		curContent   = this.closest('.content').querySelector('.toggle-content');
+
+	if ( checkedParam.value == 'def' )
+	{
+		hideContent(curContent);
+	}
+	else if ( checkedParam.value == 'user' )
+	{
+		showContent(curContent);
+	}
+}
+
+function toggleContent()
+{
+	let
+		curId  = this.getAttribute('data-id'),
+		curCon = null;
+
+	if ( curId )
+	{
+		curCon = document.querySelector('#' + curId);
+	}
+	else
+	{
+		curCon = this.closest('.content').querySelector('.toggle-content');
+	}
+
+	if ( curCon.classList.contains('vis') )
+	{
+		hideContent(curCon);
+	}
+	else
+	{
+		showContent(curCon);
+	}
+
+	if ( this.hasAttribute('data-siv') ) curCon.scrollIntoView(false);
+}
+
+function showContent(elem)
+{
+	if ( !elem.classList.contains('vis') )
+		elem.classList.add('vis');
+
+	setTimeout(function() {
+		if ( !elem.classList.contains('on') )
+			elem.classList.add('on');
+	}, 0);
+}
+
+function hideContent(elem)
+{
+	if ( elem.classList.contains('on') )
+		elem.classList.remove('on');
+
+	setTimeout(function() {
+		if ( elem.classList.contains('vis') )
+			elem.classList.remove('vis');
+	}, 200);
+}
+
+// -- -- -- SELECT
+var
+	selects = document.getElementsByClassName('select');
+
+for (var i = 0; i < selects.length; i++)
+{
+	var
+		textLen  = 0,
+		classNum = 'num' + (i + 1),
+		thisList = selects[i].querySelector('.list'),
+		options  = selects[i].querySelectorAll('.option');
+
+	selects[i].classList.add(classNum);
+
+	for (var a = 0; a < options.length; a++)
+	{
+		var
+			optionText = options[a].textContent,
+			bodyPlace  = document.querySelector('body'),
+			newPlace   = document.createElement('span'),
+			optionCss  = window.getComputedStyle(options[a]),
+			cssObj     = {
+				pl: optionCss.getPropertyValue('padding-left'),
+				pr: optionCss.getPropertyValue('padding-right')
+			};		
+
+		newPlace.innerText = optionText;
+
+		newPlace.style.position = 'absolute';
+		newPlace.style.opacity = 0;
+
+		bodyPlace.appendChild(newPlace);
+
+		var
+			textWidth = newPlace.clientWidth + parseInt(cssObj.pl) + parseInt(cssObj.pr) + 10;
+
+		if ( textWidth > textLen )
+		{
+			textLen = textWidth;
+		}
+
+		newPlace.remove();
+
+		options[a].select_data = classNum;
+
+		options[a].addEventListener('click', selectActive);
+	}
+
+	selects[i].style.width = textLen + 'px';
+}
+
+document.addEventListener('click', bgSelectClick);
+
+function selectActive()
+{
+	var
+		allSel = document.querySelectorAll('.select'),
+		select = document.querySelector('.select.' + this.select_data),
+		defVal = select.querySelector('.default'),
+		text   = this.getAttribute('data-val');
+
+	for (var x = 0; x < allSel.length; x++)
+	{
+		if ( allSel[x].classList.value.indexOf('active') > -1 )
+		{
+			selClose(allSel[x]);
+		}
+	}
+
+	if ( !text )
+	{
+		text = this.textContent;
+	}
+
+	defVal.innerHTML = text;
+
+	select.setAttribute('data-val', text);
+
+	if ( select.classList.value.indexOf('active') > -1 )
+	{
+		selClose(select);
+	}
+	else if ( select.classList.value.indexOf('close') < 0 )
+	{
+		select.classList.add('active');
+	}	
+}
+
+function selClose(elem)
+{
+	elem.classList.remove('active');
+
+	elem.classList.add('close');	
+
+	setTimeout(function() {
+		elem.classList.remove('close');
+	}, 200);
+}
+
+function bgSelectClick(e)
+{
+	var
+		selTar = e.target || e.srcElement || e.toElement,
+		allsel = document.querySelectorAll('.select');
+
+	if ( selTar.classList.value.indexOf('option') < 0 )
+	{
+		for (var i = 0; i < allsel.length; i++)
+		{
+			if ( allsel[i].classList.value.indexOf('active') > -1 )
+			{
+				selClose(allsel[i]);
+			}
+		}
+	}
+}
+
+	</script>
+	
+</body>
+</html>
